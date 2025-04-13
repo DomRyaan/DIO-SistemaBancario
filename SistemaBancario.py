@@ -1,5 +1,5 @@
 # O Sistema deve permitir fazer tres operações: Depositar, Sacar e ver o Extrato.
-import time
+from datetime import datetime
 
 class Conta:
         def __init__(self, nome: str):
@@ -9,18 +9,23 @@ class Conta:
                 "deposito": {},
                 "saque": {}
                 }
+              self.limite = 0
+              self.UltimoDiaTransacao = datetime.today().day
        
          # Operação Depositar: Não precisa se preocupar com o numero de usuario e etc. O Sistema deve registrar cada deposito em um lista, para ser usado no extrato.
         def depositar(self, valor: float):
                 self.saldo += valor
                 
-                tempoHora = time.localtime().tm_hour
-                tempoMinuto = time.localtime().tm_min
-                tempoSegundo = time.localtime().tm_sec
-                tempo = str(tempoHora) + ":" + str(tempoMinuto) + ":" + str(tempoSegundo)
-
-                self.historico["deposito"][tempo] = valor
-                print(f"\nVoce fez o deposito de: R$ {valor} na sua conta")
+                dataAtual = datetime.now()
+                mascara = dataAtual.strftime("%d/%m/%y %H:%M:%S")
+                checagem = int(mascara.split('/')[0])
+                
+                if self.limiteDiario(checagem):
+                        self.historico["deposito"][mascara] = valor
+                        print(f"\nVoce fez o deposito de: R$ {valor} na sua conta")
+                else:
+                        print("Deposito atingido o limite diario!")
+              
 
 
         # Operação de Saque: O Sistema deve permitir apenas 3 saques por dia
@@ -33,14 +38,15 @@ class Conta:
                 else:
                         self.saldo -= valor
 
-                        tempoHora = time.localtime().tm_hour
-                        tempoMinuto = time.localtime().tm_min
-                        tempoSegundo = time.localtime().tm_sec
-                        tempo = str(tempoHora) + ":" + str(tempoMinuto) + ":" + str(tempoSegundo)
+                        dataAtual = datetime.now()
+                        mascara = dataAtual.strftime("%d/%m/%y %H:%M:%S")
+                        checagem = int(mascara.split('/')[0])
 
-                        self.historico["saque"][tempo] = valor
-
-
+                        if self.limiteDiario(checagem):
+                                self.historico['saque'][mascara] = valor
+                        else:
+                               print("Saque atingido o limite diario!")
+                
         # Operação de Extrato: Deverá lista e exibir todos os saques e depositos feito na conta.
         # Deverá ser exibido utilizando os seguintes formatos: R$ xxx.xx
         def extrato(self):
@@ -54,6 +60,19 @@ class Conta:
                 print(f"\nSaldo: R$ {self.saldo:.2f}")
 
 
+        def limiteDiario(self, diaTransacao: int):
+
+                if diaTransacao != self.UltimoDiaTransacao:
+                        self.limite = 0
+                        self.UltimoDiaTransacao = diaTransacao
+
+                if diaTransacao == self.UltimoDiaTransacao:
+                      if self.limite < 10:
+                             self.limite += 1
+                             return True
+                      else:
+                             return False
+        
 def programa():
     global saldo
     print("\n")
@@ -68,7 +87,7 @@ def programa():
         \n\tDigite conforme a operacao que deseja fazer:
         \t"s" - Sacar\t"d" - Deposito
         \t"e" - Extrato\t"0" - Sair 
-""")
+        """)
 
         opcao.lower()
 
