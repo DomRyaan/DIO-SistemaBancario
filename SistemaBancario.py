@@ -1,9 +1,42 @@
 # O Sistema deve permitir fazer tres operações: Depositar, Sacar e ver o Extrato.
 from datetime import datetime
 
-class Conta:
-        def __init__(self, nome: str):
+
+class Endereco:
+        def __init__(self, cidade, estado):
+              self.cidade = cidade
+              self.estado = estado
+
+        def getCidade(self):
+              return self.cidade
+        
+        def getEstado(self):
+               return self.estado
+
+class Cliente:
+        clientes = {}
+        
+        def __init__(self, nome: str, cpf: str, endereco: object, dataNascimento: str):
               self.nome = nome
+              self._cpf = cpf
+              self.endereco = endereco
+              self.dataNascimento = dataNascimento
+              self.clientes[cpf] = [nome, endereco.getCidade(), endereco.getEstado(), dataNascimento]
+
+
+        def getNome(self):
+              return self.nome
+        
+        def getCpf(self):
+               return self._cpf
+        
+        def listaClientes(self):
+                for x in self.cliente:
+                       print(x)
+
+class Conta:
+        def __init__(self, cliente: object):
+              self.client = cliente
               self.saldo = 0
               self.historico = {
                 "deposito": {},
@@ -61,7 +94,6 @@ class Conta:
 
 
         def limiteDiario(self, diaTransacao: int):
-
                 if diaTransacao != self.UltimoDiaTransacao:
                         self.limite = 0
                         self.UltimoDiaTransacao = diaTransacao
@@ -79,14 +111,21 @@ def programa():
     print(" Sistema Bancario ".center(80, "-"))
 
     nome = input("Digite seu nome: ")
-    conta1 = Conta(nome)
+    cpf = input("Digite seu CPF: ")
+    dataNascimento = input("Digite sua data de nascimento: ")
+    cidade = input("Digite sua Cidade: ")
+    estado = input("Digite seu estado: ")
+    endereco = Endereco(cidade=cidade, estado=estado)
+    cliente1 = Cliente(nome, cpf, endereco=endereco, dataNascimento=dataNascimento)
+    conta1 = Conta(cliente=cliente1)   
 
     while True:
 
         opcao = input("""
         \n\tDigite conforme a operacao que deseja fazer:
         \t"s" - Sacar\t"d" - Deposito
-        \t"e" - Extrato\t"0" - Sair 
+        \t"e" - Extrato\t"c" - Criar Conta
+        \t"sair" - Sair 
         """)
 
         opcao.lower()
@@ -97,6 +136,9 @@ def programa():
                         print("Digite um valor valido!")
                 else:
                         conta1.saque(valor)
+        elif opcao == 'l':
+               for x in Cliente.clientes:
+                      print(f"CPF: {x}, Dados: {Cliente.clientes.get(x)}")
         elif opcao == "d":
                 valor = float(input("Digite o valor que deseja depositar: "))
                 if valor <= 0:
@@ -105,13 +147,12 @@ def programa():
                        conta1.depositar(valor)
         elif opcao == "e":
                 conta1.extrato()
-        elif opcao == "0":
+        elif opcao == "sair":
                 break
         else:
                 print("\nDigite uma opcao valida!\n")
 
     print(" Fim do Programa ".center(80, "-"))       
-
 
 
 programa()
