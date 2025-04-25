@@ -1,5 +1,20 @@
 # O Sistema deve permitir fazer tres operações: Depositar, Sacar e ver o Extrato.
 from datetime import datetime
+from abc import ABC, abstractmethod
+
+
+class Transacao(ABC):
+        @abstractmethod
+        def depositar(self, valor: float):
+                pass
+        
+        @abstractmethod
+        def saque(self, valor: float):
+                pass
+        
+        @abstractmethod
+        def extrato(self):
+                pass
 
 
 class Endereco:
@@ -30,11 +45,17 @@ class Cliente:
         def getCpf(self):
                return self._cpf
         
-        def listaClientes(self):
-                for x in self.cliente:
-                       print(x)
 
-class Conta:
+        def __str__(self):
+                return f"Nome: {self.nome}, CPF: {self._cpf}, Cidade: {self.endereco.getCidade()}, Estado: {self.endereco.getEstado()}, Data de Nascimento: {self.dataNascimento}"
+
+
+        @staticmethod
+        def listaClientes(*object):
+                for obj in object:
+                       print(obj)
+
+class Conta(Transacao):
         def __init__(self, cliente: object):
               self.client = cliente
               self.saldo = 0
